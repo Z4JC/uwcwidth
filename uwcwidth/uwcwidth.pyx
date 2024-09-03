@@ -53,8 +53,8 @@ cdef uint8_t _is_emoji_modifier(uint32_t wc_last, uint32_t wc) noexcept:
     if wc_last < 0x1f385:
         return (wc_last == 0x261d or wc_last == 0x26f9
                 or 0x270a <= wc_last <= 0x270d)
-    cdef unsigned int off  = (wc_last - 0x1f385) >> 3
-    return _EMBTABLE[off] & (1 << (off & 7)) if off < _LEN_EMBTABLE else 0
+    cdef unsigned int off = wc_last - 0x1f385, byte = off >> 3, bit = off & 7
+    return _EMBTABLE[byte] & (1 << bit) if byte < _LEN_EMBTABLE else 0
 
 
 # Derived from Rich Felker's musl wcwidth: changed U+E007F to 0 length

@@ -1,6 +1,6 @@
 [project]
 name = "uwcwidth"
-version = "0.9"
+version = "0.9.1"
 authors = [{name = "!ZAJC!"}]
 readme = "README.md"
 description = "terminal width of Unicode 16.0+Emoji strings in nanoseconds"
@@ -16,9 +16,20 @@ classifiers = [
 [project.optional-dependencies]
 test = ["pytest"]
 
+[project.urls]
+"Homepage" = "https://github.com/Z4JC/uwcwidth"
+
 [build-system]
 requires = ["setuptools", "wheel", "Cython"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["uwcwidth"]
+exclude = []
+namespaces = false
+
+
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
