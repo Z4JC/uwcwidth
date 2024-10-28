@@ -1,6 +1,6 @@
 [project]
 name = "uwcwidth"
-version = "0.9.2"
+version = "1.0.0"
 authors = [{name = "!ZAJC!"}]
 readme = "README.md"
 description = "terminal width of Unicode 16.0+Emoji strings in nanoseconds"
@@ -33,5 +33,17 @@ exclude = []
 namespaces = false
 
 [tool.pytest.ini_options]
+pythonpath = ["."]
 testpaths = ["tests"]
 addopts = ["--import-mode=importlib"]
+
+[tool.cibuildwheel]
+build-frontend = "build"
+test-command = """
+cd $( mktemp -d ) \
+&& cp -pr {project}/* ./ \
+&& rm -rf uwcwidth \
+&& pytest
+"""
+test-requires = "pytest"
+skip = ["cp36-*", "cp37-*"]

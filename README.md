@@ -1,4 +1,15 @@
-## Overview
+## uwcwidth
+*terminal width of Unicode 16.0+Emoji strings in nanoseconds*
+
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/uwcwidth)
+[![PyPI - Version](https://img.shields.io/pypi/v/uwcwidth)](https://pypi.org/project/uwcwidth/)
+[![PyPI - License](https://img.shields.io/pypi/l/uwcwidth)](https://github.com/Z4JC/uwcwidth/blob/main/LICENSE)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/uwcwidth)<br>
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/Z4JC/uwcwidth/build_deploy.yml)](https://github.com/Z4JC/uwcwidth/actions/workflows/build_deploy.yml)
+[![GitHub branch check runs](https://img.shields.io/github/check-runs/Z4JC/uwcwidth/main)](https://github.com/Z4JC/uwcwidth/actions/workflows/test.yml)
+![PyPI - Status](https://img.shields.io/pypi/status/uwcwidth)
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/uwcwidth)<br>
+
 Use `uwcwidth` when you want to very quickly find out how many characters a Unicode string takes up in your terminal.
 
 For example, `uwcwidth.wcswidth('Hello🥹')` returns `7` because  your terminal will use 5 places for "Hello" and then 2 places for the "🥹" emoji.
