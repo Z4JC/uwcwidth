@@ -51,20 +51,20 @@ See the `tests` folder for more.
 `uwcwidth` reserves around 4 KB of memory for its lookup tables. Parts of the storage scheme are derived from an older `wcwidth` implementation in [musl libc](https://musl.libc.org/). Generally sparse or dense bitmaps are used to look things up.
 The `uwcwidth.pyx` file is under 100 lines of code, with comments and whitespace.
 
-## Performance: 40x faster than `wcwidth`
-`uwcwidth` is about 40 times faster than the popular, well-documented and highly tested [wcwidth](https://github.com/jquast/wcwidth) library, while maintaining similar accuracy. It's also 5 times faster than `cwcwidth`, which does not work on new Emojis and breaks on some other edge cases.
+## Performance: 2.2x faster than `wcwidth`
+For CJK languages, `uwcwidth` is about 2.2 times faster than the popular, well-documented and highly tested [wcwidth](https://github.com/jquast/wcwidth) library, while maintaining similar accuracy by skipping some less-common scripts like Devanagari and emoji sequences like VS-15. It is only slightly slower than `cwcwidth`, which does not work on new Emojis and breaks on some other edge cases.
 
 ```python3
 In [1]: import wcwidth, cwcwidth, uwcwidth
 In [2]: %%timeit
    ...: wcwidth.wcswidth("コンニチハ, セカイ!")
-1.73 μs ± 7.93 ns per loop (mean ± std. dev. of 7 runs, 1,000,000 loops each)
+125 ns ± 0.822 ns per loop (mean ± std. dev. of 7 runs, 10,000,000 loops each)
 
 In [3]: %%timeit
    ...: cwcwidth.wcswidth("コンニチハ, セカイ!")
-211 ns ± 3.63 ns per loop (mean ± std. dev. of 7 runs, 1,000,000 loops each)
+50.2 ns ± 0.246 ns per loop (mean ± std. dev. of 7 runs, 10,000,000 loops each)
 
 In [4]: %%timeit
    ...: uwcwidth.wcswidth("コンニチハ, セカイ!")
-41 ns ± 0.0363 ns per loop (mean ± std. dev. of 7 runs, 10,000,000 loops each)
+57.4 ns ± 0.257 ns per loop (mean ± std. dev. of 7 runs, 10,000,000 loops each)
 ```
