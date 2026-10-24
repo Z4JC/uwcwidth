@@ -30,7 +30,13 @@ Let's take a look at "👩‍🦯‍➡️":
 While  `len('\U0001F469\u200d\U0001F9AF\u200d\u27a1\ufe0f')` returns `6` because this string has 6 unicode codepoints, we are looking at a single emoji "👩‍🦯‍➡️". This emoji occupies 2 characters in your terminal. Here I am assuming your terminal knows how to deal with the special Zero-Width Joiner (U+200D) and the Variation Selector-16 Emoji (U+FE0F). Things get worse as there are special modifiers for skin tone, which can be either invisible or standalone characters, etc. Also, you have to deal with other languages and their scripts, etc.
 
 ## Correctness
-`uwcwidth` should work fine on various scripts such as Cyrillic, Katakana,  and also Emojis in Unicode v16.0. This includes Emojis that use Variation Selector 15 and 16, Zero Width Joiner, Emoji Modifiers for skin type, etc. Overall, `uwcwidth` is probably more accurate than whatever is currently shipping with your OS and whatever your terminal is using in 2024.
+`uwcwidth` works on various scripts such as Cyrillic and Katakana, and on emoji in Unicode 16.0, including Emoji ZWJ sequences, Emoji Modifiers for skin tone, and Variation Selector 16. Known differences from python [wcwidth](https://wcwidth.readthedocs.io/en/latest/intro.html):
+
+- `uwcwidth` measures VS-15 (U+FE0E) text-presentation emoji as wide, while `wcwidth` measures narrow, this is considered "contested" and awaits clarification from unicode.org; see [wcwidth issue #211](https://github.com/jquast/wcwidth/issues/211).
+- `uwcwidth` measures Standalone regional indicator symbols (U+1F1E6..U+1F1FF) as narrow, where `wcwidth` measures wide.
+- `uwcwidth` measures spacing combining marks (`Mc`, used in Devanagari and other Indic scripts) per codepoint; `wcwidth` applies grapheme cluster rules. For example, `wcswidth('हिन्दी')` is 4 in `wcwidth` and 5 here, while `wcswidth('नमस्ते')` is 4 in both.
+- `wcwidth` ships Unicode 18.0 tables, so characters assigned in Unicode 17.0 and 18.0 are outside `uwcwidth`'s 16.0 tables and measure by their default width here.
+- `wcwidth` offers [wcstwidth](https://wcwidth.readthedocs.io/en/latest/intro.html#wcstwidth) that provides terminal-specific corrections, described more in [Perfecting Terminal Character Width Using Correction Tables](https://www.jeffquast.com/post/perfecting-terminal-character-width-using-correction-tables/) (2026)
 
 Some edge cases that break other `wc(s)width` libraries and a lot of terminals:
 
@@ -52,7 +58,7 @@ See the `tests` folder for more.
 The `uwcwidth.pyx` file is under 100 lines of code, with comments and whitespace.
 
 ## Performance: 1.2x faster than `wcwidth` on CJK text
-For CJK languages, `uwcwidth` is about 1.2 times faster than the popular, well-documented and highly tested [wcwidth](https://github.com/jquast/wcwidth) library, while maintaining *similar* accuracy by skipping some less-common scripts and emojis like Devanagari and VS-15.  On pure ASCII, `wcwidth` is about 3 times faster than `uwcwidth` owing to some shortcuts.
+For CJK languages, `uwcwidth` is about 1.2 times faster than the popular, well-documented and highly tested [wcwidth](https://github.com/jquast/wcwidth) library, while maintaining *similar* accuracy by skipping some grapheme handling and emoji behaviour, such as the cluster rules for spacing combining marks (`Mc`) used in Devanagari and other Indic scripts, and VS-15 narrowing. On pure ASCII, `wcwidth` is about 3 times faster than `uwcwidth` owing to some shortcuts.
 
 `wcwidth` ships a compiled extension for the stable ABI (`cp310-abi3`). The stable ABI does not expose the interpreter's internal code-point buffer, so every call copies the string into a UCS4 buffer with `PyUnicode_AsUCS4Copy`, while `uwcwidth` is compiled for each Python version and reads the code points in-place.
 
