@@ -51,20 +51,25 @@ See the `tests` folder for more.
 `uwcwidth` reserves around 4 KB of memory for its lookup tables. Parts of the storage scheme are derived from an older `wcwidth` implementation in [musl libc](https://musl.libc.org/). Generally sparse or dense bitmaps are used to look things up.
 The `uwcwidth.pyx` file is under 100 lines of code, with comments and whitespace.
 
-## Performance: 2.2x faster than `wcwidth`
-For CJK languages, `uwcwidth` is about 2.2 times faster than the popular, well-documented and highly tested [wcwidth](https://github.com/jquast/wcwidth) library, while maintaining similar accuracy by skipping some less-common scripts like Devanagari and emoji sequences like VS-15. It is only slightly slower than `cwcwidth`, which does not work on new Emojis and breaks on some other edge cases.
+## Performance: 1.2x faster than `wcwidth` on CJK text
+For CJK languages, `uwcwidth` is about 1.2 times faster than the popular, well-documented and highly tested [wcwidth](https://github.com/jquast/wcwidth) library, while maintaining *similar* accuracy by skipping some less-common scripts and emojis like Devanagari and VS-15.  On pure ASCII, `wcwidth` is about 3 times faster than `uwcwidth` owing to some shortcuts.
+
+`wcwidth` ships a compiled extension for the stable ABI (`cp310-abi3`). The stable ABI does not expose the interpreter's internal code-point buffer, so every call copies the string into a UCS4 buffer with `PyUnicode_AsUCS4Copy`, while `uwcwidth` is compiled for each Python version and reads the code points in-place.
+
 
 ```python3
 In [1]: import wcwidth, cwcwidth, uwcwidth
 In [2]: %%timeit
    ...: wcwidth.wcswidth("コンニチハ, セカイ!")
-125 ns ± 0.822 ns per loop (mean ± std. dev. of 7 runs, 10,000,000 loops each)
+67.7 ns ± 3.33 ns per loop (mean ± std. dev. of 7 runs, 1,000,000 loops each)
 
 In [3]: %%timeit
    ...: cwcwidth.wcswidth("コンニチハ, セカイ!")
-50.2 ns ± 0.246 ns per loop (mean ± std. dev. of 7 runs, 10,000,000 loops each)
+52.5 ns ± 0.56 ns per loop (mean ± std. dev. of 7 runs, 1,000,000 loops each)
 
 In [4]: %%timeit
    ...: uwcwidth.wcswidth("コンニチハ, セカイ!")
-57.4 ns ± 0.257 ns per loop (mean ± std. dev. of 7 runs, 10,000,000 loops each)
+55.6 ns ± 0.43 ns per loop (mean ± std. dev. of 7 runs, 1,000,000 loops each)
 ```
+
+Measured on CPython 3.15.0a5 and 3.14.7, x86-64. The 3.14.7 times are 70.1, 57.1 and 54.6 ns.
